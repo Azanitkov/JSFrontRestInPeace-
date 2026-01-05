@@ -24,15 +24,12 @@ public class AdminController {
     @GetMapping
     public String showAllUsers(ModelMap model) {
         model.addAttribute("users", userService.findAll());
-        model.addAttribute("allRoles", roleService.findAll());
-        model.addAttribute("editUser", new User());
         return "users/users";
     }
 
     @GetMapping("/user")
     public String showUser(@RequestParam(value = "id") Long id, Model model) {
         User user = userService.findOne(id);
-        model.addAttribute("user", userService.findOne(id));
         return "users/user";
     }
 
