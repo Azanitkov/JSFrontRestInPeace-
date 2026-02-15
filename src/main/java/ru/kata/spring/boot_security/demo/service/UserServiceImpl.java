@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,40 +32,21 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
+
     @Override
-    public User findOne(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    public void save(User user, List<Long> roleIds) {
+       Set<Role> roles = getRolesByIds(roleIds);
+       user.setRoles(roles);
+       user.setPassword(passwordEncoder.encode(user.getPassword()));
+       userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public void save(User user, List<Long> rolesIds) {
-        Set<Role> roles = getRolesByIds(rolesIds);
-        user.setRoles(roles);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
+    public void update(User updatedUser) {
+        updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        userRepository.save(updatedUser);
     }
-
-    @Override
-    @Transactional
-    public void update(Long id, User updatedUser, List<Long> rolesIds) {
-        User existingUser = findOne(id);
-        existingUser.setName(updatedUser.getName());
-        existingUser.setSurname(updatedUser.getSurname());
-        existingUser.setAge(updatedUser.getAge());
-        existingUser.setEmail(updatedUser.getEmail());
-
-        Set<Role> roles = getRolesByIds(rolesIds);
-        existingUser.setRoles(roles);
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long id) {
-        userRepository.deleteById(id);
-    }
-
 
     @Override
     public Set<Role> getRolesByIds(List<Long> rolesIds) {
@@ -85,5 +65,11 @@ public class UserServiceImpl implements UserService {
     public User getByEmail(String email) {
         return userRepository.getByEmail(email);
     }
+
+    @Override
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
+    }
+
 
 }

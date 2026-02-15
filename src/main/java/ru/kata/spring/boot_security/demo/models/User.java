@@ -5,6 +5,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,12 +13,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
-    public String getFormattedRoles(){
-        return this.roles.stream()
-                .map(role -> role.getRole().replace("ROLE_",""))
-                .collect(Collectors.joining(", "));
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -43,7 +38,7 @@ public class User implements UserDetails {
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     public User() {
     }
@@ -63,8 +58,13 @@ public class User implements UserDetails {
         this.age = age;
         this.email = email;
         this.password = password;
+        for (Role role : roles){
+            addRole(role);
+        }
     }
-
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
     public Set<Role> getRoles() {
         return roles;
     }
@@ -161,6 +161,9 @@ public class User implements UserDetails {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(surname, user.surname) && Objects.equals(age, user.age) && Objects.equals(email, user.email);
+    }
+    public void removeRoles(){
+        roles.clear();
     }
 
     @Override

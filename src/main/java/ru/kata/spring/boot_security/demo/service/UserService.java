@@ -11,19 +11,21 @@ import java.util.Set;
 public interface UserService {
     List<User> findAll();
 
-    User findOne(Long id);
+
+
 
     void save(User user, List<Long> rolesIds);
 
-    void update(Long id, User user, List<Long> rolesIds);
+    void update(User user);
 
-    void delete(Long id);
 
     Set<Role> getRolesByIds(List<Long> rolesIds);
 
     Boolean existByEmail(String email);
 
     User getByEmail(String email);
+
+    void deleteById(Long id);
 
 
 }
