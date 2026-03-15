@@ -8,8 +8,9 @@ import java.util.Set;
 
 
 public interface RoleRepository extends JpaRepository<Role, Long> {
-    Role getByRoleName(String name);
+    Role getByName(String name);
     @Query("select r from Role r")
     Set<Role> findAllRoles();
-
+    Set<Role> findByNameIn(Set<String> names);
 }
+

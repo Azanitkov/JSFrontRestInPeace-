@@ -27,10 +27,5 @@ public class UsersRestController {
         User user = userService.getByEmail(principal.getName());
         return new ResponseEntity<>(user , HttpStatus.OK);
     }
-    @GetMapping("/getCurrentUser")
-    public ResponseEntity<User> getCurrentUser (Principal principal){
-        User user = userService.getByEmail(principal.getName());
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
 
 }

@@ -1,5 +1,5 @@
 function buildHeader() {
-    fetch('admin/getCurrentUser').then(response => response.json()).then(user => {
+    fetch('user/userPage').then(response => response.json()).then(user => {
         const formatedRole = user.roles .map(role => role.name.replace('ROLE_', ' ')).join(' ')
         document.getElementById('pageHeader')
             .innerHTML = '<b>' + user.email + '</b>'+ " with role " + formatedRole;
@@ -9,7 +9,7 @@ function buildHeader() {
 buildHeader()
 
 function buildNav() {
-    fetch('/admin/getCurrentUser').then(response => response.json()).then(user => {
+    fetch('/user/userPage').then(response => response.json()).then(user => {
         document.getElementById('userRolesLink').innerHTML =
             user.roles.map(role => '<a class="nav-link' + (role.name === 'ROLE_ADMIN' ? ' active" ' : '" ') + 'href="/' + role.name.toLowerCase().replace("role_", "") + '" role="tab">' + role.name.charAt(0).toUpperCase() + role.name.substring(1).toLowerCase() + '</a>').join('\n')
     })
@@ -47,6 +47,7 @@ function buildEditRoles() {
         document.getElementById('newRoles').innerHTML = roles.map(role => `<option>${role.name}</option>`).join('\n')
     })
 }
+buildEditRoles()
 
 
 const listenClick = (selector, handler) => {

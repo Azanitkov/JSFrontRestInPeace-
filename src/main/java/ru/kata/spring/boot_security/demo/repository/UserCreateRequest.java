@@ -4,14 +4,14 @@ import ru.kata.spring.boot_security.demo.models.User;
 
 import java.util.List;
 
-public class userAddDto {
+public class UserCreateRequest {
     private User user;
     private List<Long> rolesIds;
 
     public User getUser() {
         return user;
     }
-    public userAddDto(){}
+    public UserCreateRequest(){}
 
     public void setUser(User user) {
         this.user = user;

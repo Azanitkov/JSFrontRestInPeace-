@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -44,8 +45,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void update(User updatedUser) {
-        updatedUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        userRepository.save(updatedUser);
+        User existingUser = userRepository.getOptionalById(updatedUser.getId()).orElseThrow();
+        existingUser.setRoles(roleRepository.findByNameIn(updatedUser.getRoles().stream().map(Role::getName).collect(Collectors.toSet())));
+        existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        existingUser.setEmail(updatedUser.getEmail());
+        existingUser.setName(updatedUser.getName());
+        existingUser.setSurname(updatedUser.getSurname());
+        existingUser.setAge(updatedUser.getAge());
+        userRepository.save(existingUser);
     }
 
     @Override
