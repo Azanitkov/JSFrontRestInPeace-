@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.init;
 
 import org.springframework.stereotype.Component;
+import ru.kata.spring.boot_security.demo.dto.UserCreateRequest;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
@@ -23,26 +24,26 @@ public class Init {
 
     @PostConstruct
     private void init() {
-        // Создаем роли если их нет
         if (!roleRepository.existsById(1L))
             roleRepository.save(new Role(1L, "ROLE_ADMIN"));
         if (!roleRepository.existsById(2L))
             roleRepository.save(new Role(2L, "ROLE_USER"));
 
-        // Создаем админа
         if (!userService.existByEmail("admin@mail.ru")) {
+            UserCreateRequest adminDto = new UserCreateRequest();
             User admin = new User("admin", "admin", 33, "admin@mail.ru", "admin");
-            // Передаем ID ролей (1L и 2L)
             List<Long> adminRoleIds = List.of(1L, 2L);
-            userService.save(admin, adminRoleIds);
+            adminDto.setUser(admin);
+            adminDto.setRolesIds(List.of(1L, 2L));
         }
 
-        // Создаем пользователя
+
         if (!userService.existByEmail("user@mail.ru")) {
-            User user = new User( "user", "user", 25, "user@mail.ru", "user");
-            // Передаем ID роли USER (2L)
+            UserCreateRequest userDto = new UserCreateRequest();
+            User user = new User("user", "user", 25, "user@mail.ru", "user");
             List<Long> userRoleIds = List.of(2L);
-            userService.save(user, userRoleIds);
+            userDto.setUser(user);
+            userDto.setRolesIds(List.of(2L));
         }
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,15 +27,13 @@ private final RoleRepository roleRepository;
         return roleRepository.getByName(name);
     }
 
-  /*  @Override
-    public void setExistingRoles(User user) {
-        Set<Role> roles = new HashSet<>(user.getRoles());
-        user.removeRoles();
-        for (Role role : roles){
-            user.addRole(getRoleByName(role.getName()));
+    @Override
+    public Set<Role> getRolesByIds(List<Long> rolesIds) {
+        if (rolesIds == null || rolesIds.isEmpty()) {
+            return new HashSet<>();
         }
+        return new HashSet<>(roleRepository.findAllById(rolesIds));
     }
-*/
     @Override
     public Set<Role> getAllRole() {
         return roleRepository.findAllRoles();

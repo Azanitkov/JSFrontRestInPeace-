@@ -2,6 +2,8 @@ package ru.kata.spring.boot_security.demo.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import ru.kata.spring.boot_security.demo.dto.UserCreateRequest;
+import ru.kata.spring.boot_security.demo.dto.UserUpdateRequest;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
@@ -10,10 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -21,11 +22,14 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
+    private final RoleService roleService;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, RoleService roleService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     @Override
@@ -35,8 +39,9 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void save(User user, List<Long> roleIds) {
-       Set<Role> roles = getRolesByIds(roleIds);
+    public void save(UserCreateRequest dto) {
+        User user = dto.getUser();
+       Set<Role> roles = roleService.getRolesByIds(dto.getRolesIds());
        user.setRoles(roles);
        user.setPassword(passwordEncoder.encode(user.getPassword()));
        userRepository.save(user);
@@ -44,23 +49,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void update(User updatedUser) {
-        User existingUser = userRepository.getOptionalById(updatedUser.getId()).orElseThrow();
-        existingUser.setRoles(roleRepository.findByNameIn(updatedUser.getRoles().stream().map(Role::getName).collect(Collectors.toSet())));
-        existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        existingUser.setEmail(updatedUser.getEmail());
-        existingUser.setName(updatedUser.getName());
-        existingUser.setSurname(updatedUser.getSurname());
-        existingUser.setAge(updatedUser.getAge());
+    public void update(UserUpdateRequest dto) {
+        User existingUser = userRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+
+        if (dto.getName() != null) existingUser.setName(dto.getName());
+        if (dto.getSurname() != null) existingUser.setSurname(dto.getSurname());
+        if (dto.getAge() != null) existingUser.setAge(dto.getAge());
+        if (dto.getEmail() != null) existingUser.setEmail(dto.getEmail());
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        if (dto.getRolesId() != null) {
+            Set<Role> roles = roleService.getRolesByIds(dto.getRolesId());
+            existingUser.setRoles(roles);
+        }
+
         userRepository.save(existingUser);
     }
 
     @Override
-    public Set<Role> getRolesByIds(List<Long> rolesIds) {
-        if (rolesIds == null || rolesIds.isEmpty()) {
-            return new HashSet<>();
-        }
-        return new HashSet<>(roleRepository.findAllById(rolesIds));
+    public Optional<User> findUserById(Long id) {
+       return userRepository.findById(id);
     }
 
     @Override

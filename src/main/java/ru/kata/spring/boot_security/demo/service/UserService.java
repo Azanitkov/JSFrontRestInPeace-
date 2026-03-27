@@ -1,25 +1,24 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import ru.kata.spring.boot_security.demo.models.Role;
+import ru.kata.spring.boot_security.demo.dto.UserCreateRequest;
+import ru.kata.spring.boot_security.demo.dto.UserUpdateRequest;
 import ru.kata.spring.boot_security.demo.models.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 @Service
 public interface UserService {
     List<User> findAll();
 
 
+    void save(UserCreateRequest dto);
 
+    void update(UserUpdateRequest dto);
 
-    void save(User user, List<Long> rolesIds);
+    Optional<User> findUserById(Long id);
 
-    void update(User user);
-
-
-    Set<Role> getRolesByIds(List<Long> rolesIds);
 
     Boolean existByEmail(String email);
 

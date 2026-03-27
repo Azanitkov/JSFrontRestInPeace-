@@ -3,9 +3,10 @@ package ru.kata.spring.boot_security.demo.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.dto.UserUpdateRequest;
 import ru.kata.spring.boot_security.demo.models.Role;
 import ru.kata.spring.boot_security.demo.models.User;
-import ru.kata.spring.boot_security.demo.repository.UserCreateRequest;
+import ru.kata.spring.boot_security.demo.dto.UserCreateRequest;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
@@ -17,6 +18,12 @@ import java.util.Set;
 public class AdminRestController {
     private final UserService userService;
     private final RoleService roleService;
+
+    @GetMapping("/getUser/{id}")
+    public ResponseEntity<User> getUser(@PathVariable Long id){
+        User user = userService.findUserById(id).orElseThrow(()-> new RuntimeException("User not found with id:"+ id));
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     public AdminRestController(UserService userService, RoleService roleService) {
         this.userService = userService;
@@ -38,13 +45,13 @@ public class AdminRestController {
 
     @PostMapping("/addUser")
     public void addUser(@RequestBody UserCreateRequest dto) {
-        userService.save(dto.getUser(), dto.getRolesIds());
+        userService.save(dto);
     }
     
 
     @PutMapping("/editUser")
-    public void updateUser(@RequestBody User user) {
-        userService.update(user);
+    public void updateUser(@RequestBody UserUpdateRequest dto) {
+        userService.update(dto);
     }
 
     @DeleteMapping("/deleteUser")
