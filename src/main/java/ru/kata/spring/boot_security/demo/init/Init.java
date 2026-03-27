@@ -37,7 +37,6 @@ public class Init {
             adminDto.setRolesIds(List.of(1L, 2L));
         }
 
-
         if (!userService.existByEmail("user@mail.ru")) {
             UserCreateRequest userDto = new UserCreateRequest();
             User user = new User("user", "user", 25, "user@mail.ru", "user");
